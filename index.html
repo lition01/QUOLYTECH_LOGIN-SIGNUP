@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechFlow - Authentication</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+       * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #000000 0%, #0f172a 50%, #1e293b 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Changed to flex-start for equal top alignment */
+        }
+
+        .auth-card {
+            display: flex;
+            width: 100%;
+            height: auto; /* Changed to auto for better content-based height */
+            min-height: 600px; /* Minimum height */
+            background: #0f172a;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            animation: cardEntrance 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(30, 58, 138, 0.2);
+        }
+
+        @keyframes cardEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Left Panel */
+      .left-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #000000 0%, #0f172a 50%, #1e293b 100%);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            align-self: stretch; /* Ensure full height */
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(30, 58, 138, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            animation: backgroundPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes backgroundPulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* Animated Coding Icon - now typing text */
+        .coding-icon-wrapper {
+            margin-top: 40px;
+            width: 100%;
+            height: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            animation: imageSlide 1s ease-out 0.3s both;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            background: #0a0e17; /* Darker background for terminal feel */
+            border: 1px solid rgba(30, 58, 138, 0.2);
+            padding: 20px; /* Add padding for internal content */
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; /* Monospace font for code */
+            font-size: 1.1rem;
+            color: #3b82f6; /* Blue color for the text */
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            white-space: pre-wrap; /* Preserve whitespace and wrap text */
+            align-items: flex-start; /* Align text to top */
+            padding-top: 30px;
+        }
+
+        .typing-text {
+            display: inline-block;
+            overflow: hidden;
+            vertical-align: bottom;
+            margin-top: 50px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.2em; /* Adjust height to match font size */
+            background-color: #3b82f6;
+            margin-left: 5px;
+            animation: blink-caret 0.75s step-end infinite;
+            vertical-align: bottom;
+        }
+
+        @keyframes blink-caret {
+            from, to { background-color: transparent }
+            50% { background-color: #3b82f6; }
+        }
+
+        @keyframes imageSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 2;
+            align-items: center;
+        }
+
+        .welcome-content h1 {
+            margin-top: 25px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            background-color: #3b82f6;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleSlide 1s ease-out 0.5s both;
+        }
+
+        @keyframes titleSlide {
+            0% {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .welcome-content p {
+            margin-top: 70px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            opacity: 0.8;
+            margin-bottom: 25px;
+            color: #cbd5e1;
+            animation: textSlide 1s ease-out 0.7s both;
+        }
+
+        @keyframes textSlide {
+            0% {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            100% {
+                opacity: 0.8;
+                transform: translateX(0);
+            }
+        }
+
+        .stats-cards {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: rgba(30, 58, 138, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            animation: cardSlide 0.6s ease-out both;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            transform: scale(1.04);
+        }
+
+        .stat-card:nth-child(1) {
+            animation-delay: 0.9s;
+        }
+        .stat-card:nth-child(2) {
+            animation-delay: 1.1s;
+        }
+        .stat-card:nth-child(3) {
+            animation-delay: 1.3s;
+        }
+
+        @keyframes cardSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            opacity: 0.8;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-left: 1px solid rgba(30, 58, 138, 0.2);
+            align-self: stretch; /* Ensure full height */
+        }
+
+        .header {
+            padding: 30px 40px 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #594eb9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: logoSlide 1s ease-out 0.2s both;
+        }
+
+        @keyframes logoSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container {
+            flex: 1;
+            padding: 20px 40px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            margin: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow-y: auto; /* Only show scrollbar when needed */
+            max-height: calc(100vh - 80px); /* Limit height based on viewport */
+        }
+
+        .form-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid rgba(30, 58, 138, 0.2);
+            animation: tabsSlide 1s ease-out 0.4s both;
+        }
+
+        @keyframes tabsSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #64748b;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .tab-button:hover::before {
+            left: 100%;
+        }
+
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            flex-shrink: 0;
+            flex-grow: 1;
+            opacity: 1;
+            max-height: 1000px; 
+            transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        max-height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .form.hidden {
+            opacity: 0;
+            pointer-events: none;
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            animation: inputGroupSlide 0.6s ease-out both;
+        }
+
+        .form-group:nth-child(1) {
+            animation-delay: 0.6s;
+        }
+
+        .form-group:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+
+        .form-group:nth-child(3) {
+            animation-delay: 1.0s;
+        }
+
+        .form-group:nth-child(4) {
+            animation-delay: 1.2s;
+        }
+
+        @keyframes inputGroupSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px;
+            padding-left: 45px;
+            border: 2px solid rgba(30, 58, 138, 0.3);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background: rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .input-wrapper input::placeholder {
+            color: #64748b;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .input-wrapper:focus-within .input-icon {
+            color: #3b82f6;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #3b82f6;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .form-options {
+            
+            justify-content: space-between;
+           
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            animation: optionsSlide 0.6s ease-out 1.4s both;
+        }
+        .checkbox-wrapper .forgot-link{
+            
+            margin-top: 25px;
+        }
+
+        @keyframes optionsSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .social-logins {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px; /* Moved to bottom, so add margin-top */
+            animation: socialIconsSlide 0.6s ease-out 1.8s both;
+        }
+
+        @keyframes socialIconsSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .social-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(30, 58, 138, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+            color: #64748b;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .social-btn:hover {
+            background: rgba(30, 58, 138, 0.5);
+            border-color: #3b82f6;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
+            color: #3b82f6;
+        }
+
+        .social-btn.google-icon::before { content: 'G'; } /* Using simple text for icons */
+        .social-btn.linkedin-icon::before { content: 'in'; font-size: 16px; font-weight: bold; }
+        .social-btn.github-icon::before { content: '🗄'; } /* Using a unicode character for GitHub */
+
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #64748b;
+            font-size: 0.85rem;
+            animation: dividerFade 0.6s ease-out 1.7s both;
+        }
+
+        @keyframes dividerFade {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(100, 116, 139, 0.3);
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #3b82f6;
+            transition: transform 0.2s ease;
+        }
+
+        .checkbox-wrapper input[type="checkbox"]:checked {
+            transform: scale(1.1);
+        }
+
+        .forgot-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .forgot-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .forgot-link:hover::after {
+            width: 100%;
+        }
+
+        .forgot-link:hover {
+            color: #60a5fa;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+           background-color: #3b82f6;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            animation: buttonSlide 0.6s ease-out 1.6s both;
+        }
+
+        @keyframes buttonSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: #2b4f89;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn::after {
+            content: '→';
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .submit-btn:hover::after {
+            transform: translateX(3px);
+        }
+
+        /* Loading state */
+        .loading .submit-btn {
+            background: linear-gradient(135deg, #374151, #4b5563);
+            cursor: not-allowed;
+        }
+
+        .loading .submit-btn::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Success message */
+        .success-message {
+            background: rgba(30, 58, 138, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-15px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .success-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .auth-card {
+                flex-direction: column;
+                max-width: 400px;
+            }
+
+           .left-panel {
+                padding: 30px;
+                min-height: auto;
+            }
+
+            .welcome-content h1 {
+                font-size: 2rem;
+            }
+
+            .coding-icon-wrapper {
+                height: 150px;
+                margin-bottom: 20px;
+                font-size: 0.9rem; /* Smaller font for mobile */
+            }
+
+            .form-container {
+                max-height: none; /* Remove max-height on mobile */
+                overflow-y: visible;
+            }
+
+            /* Scrollbar styling for webkit browsers on smaller screens */
+            .form-container::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .form-container::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 10px;
+            }
+
+            .form-container::-webkit-scrollbar-thumb {
+                background: rgba(59, 130, 246, 0.3);
+                border-radius: 10px;
+            }
+
+            .form-container::-webkit-scrollbar-thumb:hover {
+                background: rgba(59, 130, 246, 0.5);
+            }
+
+            .stats-cards {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .left-panel {
+                padding: 20px;
+            }
+
+            .form-container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .welcome-content h1 {
+                font-size: 1.8rem;
+            }
+            .social-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+           
+        }
+    </style>
+    <style>
+    /* Scrollbar styling for webkit browsers */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(15, 23, 42, 0.5); /* Dark track matching your theme */
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #3b82f6; /* Blue thumb matching your accent color */
+        border-radius: 10px;
+        border: 2px solid rgba(15, 23, 42, 0.5); /* Matches track color */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #2563eb; /* Darker blue on hover */
+    }
+
+    /* For Firefox */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #3b82f6 rgba(15, 23, 42, 0.5);
+    }
+</style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="auth-card">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <div class="welcome-content">
+                    <h1>Welcome to Our Platform</h1>
+                    <div class="coding-icon-wrapper">
+                        
+                        <span id="typing-text" class="typing-text"></span><span class="cursor"></span>
+                    </div>
+
+                    
+                    <p>Your trusted partner in building the perfect digital solutions. Join thousands of satisfied
+                        developers who have found their ideal tech stack with us.</p>
+
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <span class="stat-number" data-target="50000" data-suffix="K+">0</span>
+                            <span class="stat-label">Happy Clients</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" data-target="99.9" data-suffix="%">0</span>
+                            <span class="stat-label">Uptime</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" data-target="24" data-suffix="/7">0</span>
+                            <span class="stat-label">Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="header">
+                    <!-- Removed the logo text and icon -->
+                    <div class="logo"></div> 
+                </div>
+
+                <div class="form-container">
+                    <div id="success-message" class="success-message"></div>
+
+                    <!-- Form Tabs -->
+                    <div class="form-tabs">
+                        <button class="tab-button active" onclick="switchTab('login', event)">Login</button>
+                        <button class="tab-button" onclick="switchTab('register', event)">Register</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="login-form" class="form">
+                        <div class="form-group">
+                            <label for="login-email">Username or Email</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"><i class="fa-solid fa-user"></i></span>
+                                <input type="email" id="login-email" placeholder="Enter your username or email"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('login-password')"><i class="fa-solid fa-eye"></i></button>
+                                <input type="password" id="login-password" placeholder="Enter your password" required>
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="remember">
+                                <label for="remember">Remember me for 30 days</label>
+                            </div>
+                            <div class="checkbox-wrapper">
+                             <a href="#" class="forgot-link" onclick="showForgotPassword()">Forgot Password?</a>
+                            </div>
+                            
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            <span>Login to Your Account</span>
+                        </button>
+
+                        <div class="divider">
+                            <span>or</span>
+                        </div>
+
+                        <div class="social-logins">
+                            <button type="button" class="social-btn google-icon" onclick="socialLogin('Google')"></button>
+                            <button type="button" class="social-btn linkedin-icon" onclick="socialLogin('LinkedIn')"></button>
+                            <button type="button" class="social-btn github-icon" onclick="socialLogin('GitHub')"></button>
+                        </div>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="register-form" class="form hidden">
+                        <div class="form-group">
+                            <label for="register-name">Full Name</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" id="register-name" placeholder="Enter your full name" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="register-email">Email Address</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" id="register-email" placeholder="Enter your email address" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('register-password')"><i class="fa-solid fa-eye"></i></button>
+                                <input type="password" id="register-password" placeholder="Create a password" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('confirm-password')"><i class="fa-solid fa-eye"></i></button>
+                                <input type="password" id="confirm-password" placeholder="Confirm your password"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="terms" required>
+                                <label for="terms">I agree to Terms & Conditions</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            <span>Create Your Account</span>
+                        </button>
+
+                        <div class="divider">
+                            <span>or</span>
+                        </div>
+
+                        <div class="social-logins">
+                            <button type="button" class="social-btn google-icon" onclick="socialLogin('Google')"></button>
+                            <button type="button" class="social-btn linkedin-icon" onclick="socialLogin('LinkedIn')"></button>
+                            <button type="button" class="social-btn github-icon" onclick="socialLogin('GitHub')"></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'login';
+
+        function switchTab(tab, event) { // Added event parameter
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const successMessage = document.getElementById('success-message');
+
+            // Hide success message when switching tabs
+            successMessage.classList.remove('show');
+
+            // Update tab buttons with smooth transition
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = 'scale(1)';
+                }, 100);
+            });
+            
+            // Use the passed event object
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            // Switch forms with enhanced transitions
+            if (tab === 'login') {
+                registerForm.classList.add('hidden');
+                setTimeout(() => {
+                    loginForm.classList.remove('hidden');
+                    // Re-animate form elements
+                    animateFormElements(loginForm);
+                }, 300);
+                currentTab = 'login';
+            } else {
+                loginForm.classList.add('hidden');
+                setTimeout(() => {
+                    registerForm.classList.remove('hidden');
+                    // Re-animate form elements
+                    animateFormElements(registerForm);
+                }, 300);
+                currentTab = 'register';
+            }
+        }
+
+        function animateFormElements(form) {
+            const formGroups = form.querySelectorAll('.form-group');
+            const options = form.querySelector('.form-options');
+            const button = form.querySelector('.submit-btn');
+            const divider = form.querySelector('.divider');
+            const socialLogins = form.querySelector('.social-logins');
+
+
+            formGroups.forEach((group, index) => {
+                group.style.animation = 'none';
+                group.offsetHeight; // Trigger reflow
+                group.style.animation = `inputGroupSlide 0.6s ease-out ${index * 0.2}s both`;
+            });
+
+            if (options) {
+                options.style.animation = 'none';
+                options.offsetHeight;
+                options.style.animation = `optionsSlide 0.6s ease-out ${formGroups.length * 0.2}s both`;
+            }
+
+            button.style.animation = 'none';
+            button.offsetHeight;
+            button.style.animation = `buttonSlide 0.6s ease-out ${(formGroups.length + 1) * 0.2}s both`;
+
+            if (divider) {
+                divider.style.animation = 'none';
+                divider.offsetHeight;
+                divider.style.animation = `dividerFade 0.6s ease-out ${(formGroups.length + 2) * 0.2}s both`;
+            }
+
+            if (socialLogins) {
+                socialLogins.style.animation = 'none';
+                socialLogins.offsetHeight;
+                socialLogins.style.animation = `socialIconsSlide 0.6s ease-out ${(formGroups.length + 3) * 0.2}s both`;
+            }
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            // The button is the sibling of the input, and the icon is inside the button
+            const button = input.parentElement.querySelector('.password-toggle');
+            const icon = button.querySelector('i'); 
+
+            // Add transition effect
+            button.style.transform = 'translateY(-50%) scale(0.8)';
+            setTimeout(() => {
+                button.style.transform = 'translateY(-50%) scale(1)';
+            }, 150);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function socialLogin(platform) {
+            showSuccessMessage(`${platform} authentication initiated...`);
+            // Here you would integrate with respective OAuth providers
+        }
+
+        function showSuccessMessage(message) {
+            const successMessage = document.getElementById('success-message');
+            successMessage.textContent = message;
+            successMessage.classList.add('show');
+
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 4000);
+        }
+
+        function showForgotPassword() {
+            showSuccessMessage('Password reset link has been sent to your email!');
+        }
+
+        // Handle form submissions
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = this;
+
+            // Add loading state
+            form.classList.add('loading');
+
+            // Simulate API call
+            setTimeout(() => {
+                form.classList.remove('loading');
+                showSuccessMessage('Welcome back! Redirecting to your dashboard...');
+                form.reset();
+            }, 2000);
+        });
+
+        document.getElementById('register-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = this;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                showSuccessMessage('Passwords do not match!');
+                return;
+            }
+
+            // Add loading state
+            form.classList.add('loading');
+
+            // Simulate API call
+            setTimeout(() => {
+                form.classList.remove('loading');
+                showSuccessMessage('Account created successfully! Welcome to TechFlow!');
+                form.reset();
+
+                // Switch to login tab after successful registration
+                setTimeout(() => {
+                    document.querySelector('.tab-button').click();
+                }, 1500);
+            }, 2000);
+        });
+
+        // Enhanced input focus effects
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.style.transform = 'translateY(-2px)';
+                this.parentElement.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+
+            input.addEventListener('blur', function () {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+
+            // Add typing animation
+            input.addEventListener('input', function () {
+                const icon = this.previousElementSibling;
+                if (icon) {
+                    icon.style.transform = 'translateY(-50%) scale(1.1)';
+                    setTimeout(() => {
+                        icon.style.transform = 'translateY(-50%) scale(1)';
+                    }, 200);
+                }
+            });
+        });
+
+        // Counter animation logic
+        function animateCounter(element, target, duration, suffix = '') {
+            let start = 0;
+            const isFloat = target % 1 !== 0;
+            const increment = isFloat ? target / (duration / 10) : Math.ceil(target / (duration / 10));
+            let current = 0;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsedTime = currentTime - startTime;
+                const progress = Math.min(elapsedTime / duration, 1);
+
+                if (isFloat) {
+                    current = parseFloat((start + progress * (target - start)).toFixed(1));
+                } else {
+                    current = Math.floor(start + progress * (target - start));
+                }
+
+                element.textContent = current + suffix;
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target + suffix; // Ensure final value is exact
+                }
+            }
+            requestAnimationFrame(updateCounter);
+        }
+
+        // Typing animation logic
+        const codeLines = [
+            
+            "const user = authenticate(credentials);",
+            "if (user.isAuthenticated) {",
+            "  redirectToDashboard();",
+            
+        ];
+        let lineIndex = 0;
+        let charIndex = 0;
+        let typingSpeed = 50; // milliseconds per character
+        let lineDelay = 1000; // milliseconds between lines
+
+        function typeCode() {
+            const typingTextElement = document.getElementById('typing-text');
+            if (lineIndex < codeLines.length) {
+                if (charIndex < codeLines[lineIndex].length) {
+                    typingTextElement.textContent += codeLines[lineIndex].charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typeCode, typingSpeed);
+                } else {
+                    typingTextElement.textContent += '\n'; // New line after each code line
+                    lineIndex++;
+                    charIndex = 0;
+                    setTimeout(typeCode, lineDelay);
+                }
+            } else {
+                // Reset for continuous loop or stop
+                lineIndex = 0;
+                charIndex = 0;
+                typingTextElement.textContent = ''; // Clear text to restart animation
+                setTimeout(typeCode, lineDelay * 2); // Longer delay before restarting
+            }
+        }
+
+
+        // Initialize animations on load
+        window.addEventListener('load', function() {
+            // Animate stats cards numbers
+            document.querySelectorAll('.stat-number').forEach(stat => {
+                const target = parseFloat(stat.getAttribute('data-target'));
+                const suffix = stat.getAttribute('data-suffix') || '';
+                animateCounter(stat, target, 1500, suffix); // 1.5 seconds duration
+            });
+            
+            // Initial animation for form elements
+            animateFormElements(document.getElementById('login-form'));
+
+            // Start typing animation
+            typeCode();
+        });
+    </script>
+</body>
+
+</html>
